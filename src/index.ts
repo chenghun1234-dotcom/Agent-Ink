@@ -46,6 +46,9 @@ app.use('/v1/*', async (c, next) => {
   await next();
 });
 
+// Health Check for RapidAPI
+app.get('/ping', (c) => c.json({ status: "ok", timestamp: new Date().toISOString() }));
+
 // 1. Welcome & Manifesto
 app.get('/', (c) => {
   return c.json({
