@@ -1,4 +1,4 @@
-name = "agent-ink"
+name = "agentink"
 main = "src/index.ts"
 compatibility_date = "2024-01-08"
 
@@ -12,7 +12,7 @@ binding = "ASSETS"
 [[d1_databases]]
 binding = "DB"
 database_name = "agent-ink-db"
-database_id = "agent-ink-db-id" # Placeholder for local testing
+database_id = "agent-ink-db-id" # <--- 이 부분에 실제 생성된 ID를 넣어야 합니다!
 
 # [[r2_buckets]]
 # binding = "BUCKET"
