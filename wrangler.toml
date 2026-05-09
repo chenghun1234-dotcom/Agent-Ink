@@ -1,5 +1,6 @@
 name = "agentink"
 main = "src/index.ts"
+account_id = "49af3b7a36c06d76c04d8997c18b22e5"
 compatibility_date = "2024-01-08"
 
 [assets]
@@ -12,7 +13,7 @@ binding = "ASSETS"
 [[d1_databases]]
 binding = "DB"
 database_name = "agent-ink-db"
-database_id = "agent-ink-db-id" # <--- 이 부분에 실제 생성된 ID를 넣어야 합니다!
+database_id = "755d4b46-c458-4661-a04b-593ebe724e37"
 
 # [[r2_buckets]]
 # binding = "BUCKET"
