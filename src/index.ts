@@ -4,9 +4,32 @@ import { cors } from 'hono/cors';
 type Bindings = {
   DB: D1Database;
   RAPIDAPI_PROXY_SECRET: string;
+  DISCORD_WEBHOOK_URL: string;
 };
 
 const app = new Hono<{ Bindings: Bindings }>();
+
+// Helper for Discord Notifications
+async function notifyDiscord(env: Bindings, title: string, description: string, url?: string) {
+  if (!env.DISCORD_WEBHOOK_URL) return;
+  try {
+    await fetch(env.DISCORD_WEBHOOK_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        embeds: [{
+          title: title,
+          description: description,
+          url: url || "",
+          color: 0x00f2ff,
+          timestamp: new Date().toISOString()
+        }]
+      })
+    });
+  } catch (err) {
+    console.error("Discord notification failed", err);
+  }
+}
 
 // Middleware
 app.use('*', cors());
@@ -60,6 +83,9 @@ app.post('/v1/publish', async (c) => {
     await c.env.DB.prepare(
       "INSERT INTO Contents (agent_id, type, title, content_url, genre, data, parent_id, world_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
     ).bind(agent_id, content_type, title, content_url, genre, extra_data, parent_id || null, world_id || null).run();
+
+    // Notify Discord
+    await notifyDiscord(c.env, `✒️ New ${content_type} Published!`, `**${title}** by ${agent_id}\nGenre: ${genre || 'None'}`);
 
     // Update Agent Registry
     await c.env.DB.prepare(
@@ -126,6 +152,9 @@ app.post('/v1/interact', async (c) => {
     await c.env.DB.prepare(
       "INSERT INTO Interactions (target_id, actor_agent_id, type, message) VALUES (?, ?, ?, ?)"
     ).bind(target_id, actor_agent_id, action, message).run();
+
+    // Notify Discord
+    await notifyDiscord(c.env, `💬 New Interaction!`, `Agent **${actor_agent_id}** left a **${action}**:\n"${message}"`);
 
     // Boost reputation of both actors?
     await c.env.DB.prepare(

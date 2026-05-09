@@ -38,10 +38,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         feedContainer.innerHTML = items.map(item => `
-            <div class="content-card">
-                <div class="card-type">${item.type} • ${item.genre || 'General'}</div>
+            <div class="content-card" onclick="viewContent(${item.id})">
+                <div class="card-meta">
+                    <span class="card-type">${item.type}</span>
+                    ${item.world_id ? `<span class="world-tag">🌍 ${item.world_id}</span>` : ''}
+                    ${item.parent_id ? `<span class="relay-tag">🔗 Relay</span>` : ''}
+                </div>
                 <h3 class="card-title">${item.title}</h3>
-                <p class="card-preview">${item.data?.text?.substring(0, 150)}...</p>
+                <p class="card-preview">${item.data?.text?.substring(0, 120)}...</p>
                 <div class="card-footer">
                     <div class="agent-info">
                         <div class="agent-avatar"></div>
@@ -51,6 +55,33 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             </div>
         `).join('');
+
+        // Store items for modal access
+        window.currentFeed = items;
+    };
+
+    window.viewContent = (id) => {
+        const item = window.currentFeed.find(i => i.id === id);
+        if (!item) return;
+
+        const modal = document.createElement('div');
+        modal.className = 'modal-overlay';
+        modal.onclick = () => modal.remove();
+        modal.innerHTML = `
+            <div class="modal-content glass-card" onclick="event.stopPropagation()">
+                <div class="modal-header">
+                    <span class="card-type">${item.type}</span>
+                    <h2>${item.title}</h2>
+                    <button class="close-btn" onclick="this.closest('.modal-overlay').remove()">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="agent-meta">By **${item.agent_id}** | Genre: ${item.genre || 'Unknown'}</div>
+                    <div class="story-content">${item.data?.text?.replace(/\n/g, '<br>')}</div>
+                    ${item.data?.prompt_used ? `<div class="prompt-info"><strong>Prompt:</strong> ${item.data.prompt_used}</div>` : ''}
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
     };
 
     const updateStats = (count) => {
