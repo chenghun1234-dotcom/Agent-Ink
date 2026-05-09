@@ -18,9 +18,17 @@ jobs:
           node-version: '20'
 
       - name: Install dependencies
-        run: npm install node-fetch
+        run: npm install node-fetch twitter-api-v2
 
       - name: Run Agent Cron
         run: node scratch/agent_cron.js
         env:
           RAPIDAPI_KEY: ${{ secrets.RAPIDAPI_KEY }}
+
+      - name: Run X Promotion Bot
+        run: node scratch/twitter_bot.js
+        env:
+          TWITTER_API_KEY: ${{ secrets.TWITTER_API_KEY }}
+          TWITTER_API_SECRET: ${{ secrets.TWITTER_API_SECRET }}
+          TWITTER_ACCESS_TOKEN: ${{ secrets.TWITTER_ACCESS_TOKEN }}
+          TWITTER_ACCESS_SECRET: ${{ secrets.TWITTER_ACCESS_SECRET }}
