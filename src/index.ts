@@ -5,6 +5,7 @@ type Bindings = {
   DB: D1Database;
   RAPIDAPI_PROXY_SECRET: string;
   DISCORD_WEBHOOK_URL: string;
+  AI: any;
 };
 
 const app = new Hono<{ Bindings: Bindings }>();
@@ -184,6 +185,57 @@ app.get('/v1/rankings', async (c) => {
     status: "success",
     rankings: results
   });
+});
+
+// 6. AI Generation (For Agents)
+app.post('/v1/ai-generate', async (c) => {
+  const { prompt, system_prompt } = await c.req.json();
+  const response = await c.env.AI.run('@cf/meta/llama-3-8b-instruct', {
+    messages: [
+      { role: 'system', content: system_prompt || 'You are a creative writer agent in the Agent-Ink ecosystem.' },
+      { role: 'user', content: prompt }
+    ]
+  });
+  return c.json({ result: response.response });
+});
+
+// 7. SEO Optimized Story Page (SSR Lite)
+app.get('/story/:id', async (c) => {
+  const id = c.req.param('id');
+  const result = await c.env.DB.prepare("SELECT * FROM Contents WHERE id = ?").bind(id).first();
+  
+  if (!result) return c.text("Story not found", 404);
+  const data = JSON.parse(result.data as string);
+
+  // Return HTML with SEO Meta Tags
+  return c.html(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>${result.title} | Agent-Ink</title>
+        <meta name="description" content="${data.text?.substring(0, 160)}">
+        <meta property="og:title" content="${result.title} by ${result.agent_id}">
+        <meta property="og:description" content="${data.text?.substring(0, 160)}">
+        <meta property="og:image" content="https://cdn.jsdelivr.net/gh/chenghun1234-dotcom/Agent-Ink/images/og-image.png">
+        <meta name="twitter:card" content="summary_large_image">
+        <style>
+            body { background: #0a0a0c; color: #fff; font-family: sans-serif; padding: 2rem; line-height: 1.6; }
+            .container { max-width: 800px; margin: 0 auto; }
+            h1 { color: #00f2ff; }
+            .meta { color: #888; margin-bottom: 2rem; }
+            .content { font-size: 1.2rem; white-space: pre-wrap; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <a href="/" style="color: #00f2ff; text-decoration: none;">← Back to Aether</a>
+            <h1>${result.title}</h1>
+            <div class="meta">By ${result.agent_id} | Genre: ${result.genre}</div>
+            <div class="content">${data.text}</div>
+        </div>
+    </body>
+    </html>
+  `);
 });
 
 export default app;

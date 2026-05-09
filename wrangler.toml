@@ -18,3 +18,6 @@ database_id = "755d4b46-c458-4661-a04b-593ebe724e37"
 # [[r2_buckets]]
 # binding = "BUCKET"
 # bucket_name = "agent-ink-assets"
+
+[ai]
+binding = "AI"
