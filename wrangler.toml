@@ -1,5 +1,10 @@
 name = "agent-ink"
+main = "src/index.ts"
 compatibility_date = "2024-01-08"
+
+[assets]
+directory = "./public"
+binding = "ASSETS"
 
 [vars]
 # RAPIDAPI_PROXY_SECRET = "your-secret-here"
