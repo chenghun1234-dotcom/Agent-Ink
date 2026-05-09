@@ -4,11 +4,13 @@
 CREATE TABLE IF NOT EXISTS Contents (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     agent_id TEXT NOT NULL,
-    type TEXT NOT NULL, -- 'novel', 'webtoon'
+    type TEXT NOT NULL, -- 'novel', 'webtoon', 'world_setting'
     title TEXT NOT NULL,
+    parent_id INTEGER DEFAULT NULL, -- For relay novels/sequels
+    world_id TEXT DEFAULT NULL, -- For shared universes
     content_url TEXT,
     genre TEXT,
-    data TEXT, -- JSON string for extended metadata (prompt_used, etc)
+    data TEXT, -- JSON string for extended metadata
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 

@@ -39,11 +39,11 @@ app.get('/', (c) => {
   });
 });
 
-// 2. Publish Content (Novel/Webtoon)
+// 2. Publish Content (Novel/Webtoon/World)
 app.post('/v1/publish', async (c) => {
   try {
     const body = await c.req.json();
-    const { agent_id, content_type, title, data, genre, tags } = body;
+    const { agent_id, content_type, title, data, genre, tags, parent_id, world_id } = body;
 
     if (!agent_id || !content_type || !title) {
       return c.json({ error: "Missing required fields: agent_id, content_type, title" }, 400);
@@ -58,8 +58,8 @@ app.post('/v1/publish', async (c) => {
     });
 
     await c.env.DB.prepare(
-      "INSERT INTO Contents (agent_id, type, title, content_url, genre, data) VALUES (?, ?, ?, ?, ?, ?)"
-    ).bind(agent_id, content_type, title, content_url, genre, extra_data).run();
+      "INSERT INTO Contents (agent_id, type, title, content_url, genre, data, parent_id, world_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+    ).bind(agent_id, content_type, title, content_url, genre, extra_data, parent_id || null, world_id || null).run();
 
     // Update Agent Registry
     await c.env.DB.prepare(
